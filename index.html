@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDF Construction - Professional Construction Services</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            /* Construction company color palette */
+            --background: #ffffff;
+            --foreground: #3d5f44;
+            --card: #f9f9f9;
+            --card-foreground: #3d5f44;
+            --primary: #3d5f44;
+            --primary-foreground: #ffffff;
+            --secondary: #fd7b46;
+            --secondary-foreground: #ffffff;
+            --muted: #f1f5f9;
+            --muted-foreground: #475569;
+            --accent: #fd7b46;
+            --accent-foreground: #ffffff;
+            --border: #e0e0e0;
+            --input: #ffffff;
+            --ring: rgba(61, 95, 68, 0.5);
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        /* Custom curved divider styles */
+        .curved-divider {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .curved-divider::after {
+            content: "";
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: inherit;
+            clip-path: ellipse(100% 100% at 50% 0%);
+        }
+
+        /* Abstract background patterns */
+        .abstract-pattern {
+            background-image: radial-gradient(circle at 20% 80%, rgba(61, 95, 68, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(253, 123, 70, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(61, 95, 68, 0.03) 0%, transparent 50%);
+        }
+
+        /* Custom color classes */
+        .bg-primary { background-color: var(--primary); }
+        .bg-secondary { background-color: var(--secondary); }
+        .bg-card { background-color: var(--card); }
+        .bg-muted { background-color: var(--muted); }
+        .text-primary { color: var(--primary); }
+        .text-secondary { color: var(--secondary); }
+        .text-muted-foreground { color: var(--muted-foreground); }
+        .text-primary-foreground { color: var(--primary-foreground); }
+        .text-secondary-foreground { color: var(--secondary-foreground); }
+        .border-primary { border-color: var(--primary); }
+        .border-border { border-color: var(--border); }
+
+        /* Button styles */
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background-color: rgba(61, 95, 68, 0.9);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            padding: 0.75rem 2rem;
+            border: 2px solid var(--primary);
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+        }
+
+        /* Card styles */
+        .card {
+            background-color: var(--card);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Form styles */
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background-color: var(--input);
+            color: var(--foreground);
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(61, 95, 68, 0.1);
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Icon styles */
+        .icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        /* Responsive utilities */
+        @media (max-width: 768px) {
+            .mobile-hidden { display: none; }
+            .mobile-menu { display: block; }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-menu { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div >
+                        <img src="img/Logo1.png" alt="">
+                    </div>
+                    <span class="text-xl font-bold text-gray-900">SDF Construction</span>
+                </div>
+
+                <div class="mobile-hidden flex items-center space-x-8">
+                    <a href="#home" class="text-gray-700 hover:text-primary transition-colors">Home</a>
+                    <a href="#about" class="text-gray-700 hover:text-primary transition-colors">About</a>
+                    <a href="#services" class="text-gray-700 hover:text-primary transition-colors">Services</a>
+                    <a href="#industries" class="text-gray-700 hover:text-primary transition-colors">Industries</a>
+                    <a href="#work" class="text-gray-700 hover:text-primary transition-colors">Our Work</a>
+                    <a href="#contact" class="text-gray-700 hover:text-primary transition-colors">Contact</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="mobile-hidden flex items-center space-x-2 text-sm text-gray-600">
+                        <svg class="icon w-4 h-4" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        <span>745 887 5477</span>
+                    </div>
+                    <button class="btn-primary">Get Quote</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen flex items-center justify-center abstract-pattern">
+        <div class="absolute inset-0 bg-gradient-to-r from-white/90 to-white/70"></div>
+        <div class="max-w-7xl mx-auto px-4 relative z-10">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-5xl md:text-7xl font-black text-gray-900 mb-6">
+                    Transforming Spaces Into Stories
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                    Professional construction services with unmatched quality and precision. From concept to completion.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button class="btn-primary text-lg px-8 py-4">
+                        Request Free Quote
+                        <svg class="icon w-5 h-5" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"></path></svg>
+                    </button>
+                    <button class="btn-outline text-lg px-8 py-4">
+                        View Our Work
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="curved-divider absolute bottom-0 left-0 right-0 h-20 bg-white"></div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-black text-gray-900 mb-6">WHO WE ARE, WHAT WE DO</h2>
+                    <div class="w-24 h-1 bg-secondary mx-auto mb-8"></div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <p class="text-lg text-gray-600 leading-relaxed mb-6">
+                            SDF is committed to redefining excellence in the drywall and framing construction sector. Our goal is
+                            to deliver projects that not only meet but surpass industry standards, ensuring long-lasting and
+                            impressive results.
+                        </p>
+                        <p class="text-lg text-gray-600 leading-relaxed mb-8">
+                            We focus on innovation, employing state-of-the-art technology and methods to enhance efficiency and
+                            precision. We prioritize client satisfaction, tailoring our services to meet the unique needs and
+                            visions of each project.
+                        </p>
+
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg class="icon w-8 h-8 text-primary" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path><path d="M10 6h4"></path><path d="M10 10h4"></path><path d="M10 14h4"></path><path d="M10 18h4"></path></svg>
+                                </div>
+                                <h3 class="font-bold text-gray-900 mb-2">500+</h3>
+                                <p class="text-sm text-gray-600">Projects Completed</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg class="icon w-8 h-8 text-secondary" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="m22 21-3-3m0 0a5 5 0 1 0-7-7 5 5 0 0 0 7 7Z"></path></svg>
+                                </div>
+                                <h3 class="font-bold text-gray-900 mb-2">50+</h3>
+                                <p class="text-sm text-gray-600">Expert Team</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative">
+                        <img
+                            src="img/SDF Construction team at work.png"
+                            alt="SDF Construction team at work"
+                            class="rounded-lg shadow-2xl w-full"
+                        />
+                        <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-secondary rounded-full flex items-center justify-center">
+                            <svg class="icon w-16 h-16 text-white" viewBox="0 0 24 24"><path d="m9 12 2 2 4-4"></path><path d="M21 12c.552 0 1.005-.449.95-.998a10 10 0 1 0-8.953 8.953c.549-.055.998-.398.998-.95 0-.551-.449-1.005-.998-.95a8 8 0 1 1 7.953-7.953c-.055-.549-.398-.998-.95-.998Z"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-20 bg-gray-50 curved-divider abstract-pattern">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-black text-gray-900 mb-6">
+                        OUR <span class="text-secondary">SERVICES</span>
+                    </h2>
+                    <div class="w-24 h-1 bg-secondary mx-auto"></div>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="card">
+                        <div class="relative overflow-hidden">
+                            <img
+                                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/drywall-installation-tools-and-materials-3oE7LUsjlSI5wrsUqNW72qdKW6bMzy.jpg"
+                                alt="Drywall & Spackle"
+                                class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                            />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-3">DRYWALL & SPACKLE</h3>
+                            <p class="text-gray-600 leading-relaxed">
+                                SDF is a leading company specializing in drywall installation and finishing. We handle all aspects of drywall work.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="relative overflow-hidden">
+                            <img
+                                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/metal-stud-framing-construction-fdQBPWppakaq6BVIj1WqUBnm4awkUg.jpg"
+                                alt="Metal Stud Framing"
+                                class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                            />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-3">METAL STUD FRAMING</h3>
+                            <p class="text-gray-600 leading-relaxed">
+                                Our expertise lies in constructing durable and precise metal stud frameworks for walls and ceilings.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="relative overflow-hidden">
+                            <img
+                                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/soundproofing-installation-in-modern-building-MXvJ8sURLS5I8lg2v3Reh2AKyLV9NT.jpg"
+                                alt="Soundproofing"
+                                class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                            />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-3">SOUNDPROOFING</h3>
+                            <p class="text-gray-600 leading-relaxed">
+                                We're leading specialists in soundproofing solutions. Our sound and quiet services can help you create optimal acoustic environments.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="relative overflow-hidden">
+                            <img
+                                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/professional-hardware-installation-tools-XSyEAkmRlcjEUz36PYJ0oq9KGuyb1m.jpg"
+                                alt="Hardware Installation"
+                                class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                            />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-3">HARDWARE INSTALLATION</h3>
+                            <p class="text-gray-600 leading-relaxed">
+                                We specialize in professional window and door installations, delivering high-quality services for residential and commercial projects.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="relative overflow-hidden">
+                            <img
+                                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/modern-acoustical-ceiling-installation-to4JAr9PeEOM4qgK5hQmfYlSMrZF70.jpg"
+                                alt="Acoustical Ceilings"
+                                class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                            />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-3">ACOUSTICAL CEILINGS</h3>
+                            <p class="text-gray-600 leading-relaxed">
+                                Our acoustical ceilings and ceiling systems are fully engineered to look up to the world in which we live and work.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="relative overflow-hidden">
+                            <img
+                                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/insulation-installation-in-building-walls-bH9vd3JTlhzIImTSBwTy38CzTOeaV6.jpg"
+                                alt="Insulation"
+                                class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                            />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-3">INSULATION</h3>
+                            <p class="text-gray-600 leading-relaxed">
+                                Proper thermal insulation is one of the most important aspects of energy efficiency. Our thermal systems are designed to keep your space comfortable.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Industries Section -->
+    <section id="industries" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-black text-gray-900 mb-6">
+                        INDUSTRIES <span class="text-secondary">WE SERVE</span>
+                    </h2>
+                    <div class="w-24 h-1 bg-secondary mx-auto"></div>
+                </div>
+
+                <div class="space-y-8">
+                    <div class="card overflow-hidden shadow-lg">
+                        <div class="grid md:grid-cols-2 gap-0">
+                            <div class="p-8 lg:p-12 flex flex-col justify-center">
+                                <div class="flex items-center mb-6">
+                                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                                        <svg class="icon w-8 h-8 text-primary" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path><path d="M10 6h4"></path><path d="M10 10h4"></path><path d="M10 14h4"></path><path d="M10 18h4"></path></svg>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-gray-900">Commercial</h3>
+                                </div>
+                                <p class="text-lg text-gray-600 leading-relaxed mb-6">
+                                    We take pride in our services to commercial construction. SDF will work with you to deliver your project efficiently and professionally.
+                                </p>
+                                <button class="btn-outline w-fit">
+                                    Learn More
+                                    <svg class="icon w-4 h-4" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"></path></svg>
+                                </button>
+                            </div>
+                            <div class="relative">
+                                <img
+                                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/modern-commercial-building-construction-site-3WblTapVlI7Hthv4qg5xgd0m3zraP2.jpg"
+                                    alt="Commercial"
+                                    class="w-full h-full object-cover min-h-[300px]"
+                                />
+                                <div class="absolute inset-0 bg-gradient-to-r from-green-900/20 to-transparent"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card overflow-hidden shadow-lg">
+                        <div class="grid md:grid-cols-2 gap-0">
+                            <div class="p-8 lg:p-12 flex flex-col justify-center md:order-2">
+                                <div class="flex items-center mb-6">
+                                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                                        <svg class="icon w-8 h-8 text-primary" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="m22 21-3-3m0 0a5 5 0 1 0-7-7 5 5 0 0 0 7 7Z"></path></svg>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-gray-900">Residential</h3>
+                                </div>
+                                <p class="text-lg text-gray-600 leading-relaxed mb-6">
+                                    No one cares that you build your dream home, but it's every homeowner's dream. Our residential experts will plan your home with superior care.
+                                </p>
+                                <button class="btn-outline w-fit">
+                                    Learn More
+                                    <svg class="icon w-4 h-4" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"></path></svg>
+                                </button>
+                            </div>
+                            <div class="relative md:order-1">
+                                <img
+                                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/residential-home-construction-with-workers-ZeM9jTVcCI5iHncEf0ACrKSGb6k8Mw.jpg"
+                                    alt="Residential"
+                                    class="w-full h-full object-cover min-h-[300px]"
+                                />
+                                <div class="absolute inset-0 bg-gradient-to-r from-green-900/20 to-transparent"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card overflow-hidden shadow-lg">
+                        <div class="grid md:grid-cols-2 gap-0">
+                            <div class="p-8 lg:p-12 flex flex-col justify-center">
+                                <div class="flex items-center mb-6">
+                                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                                        <svg class="icon w-8 h-8 text-primary" viewBox="0 0 24 24"><path d="m9 12 2 2 4-4"></path><path d="M21 12c.552 0 1.005-.449.95-.998a10 10 0 1 0-8.953 8.953c.549-.055.998-.398.998-.95 0-.551-.449-1.005-.998-.95a8 8 0 1 1 7.953-7.953c-.055-.549-.398-.998-.95-.998Z"></path></svg>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-gray-900">Industrial</h3>
+                                </div>
+                                <p class="text-lg text-gray-600 leading-relaxed mb-6">
+                                    A technology built to work for your needs. Manufacturing facilities require specialized construction. We have the expertise to get the job done right.
+                                </p>
+                                <button class="btn-outline w-fit">
+                                    Learn More
+                                    <svg class="icon w-4 h-4" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"></path></svg>
+                                </button>
+                            </div>
+                            <div class="relative">
+                                <img
+                                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/industrial-facility-construction-with-heavy-machin-6v1BNVYA76rZy0HZUIcsLomqBq1jlp.jpg"
+                                    alt="Industrial"
+                                    class="w-full h-full object-cover min-h-[300px]"
+                                />
+                                <div class="absolute inset-0 bg-gradient-to-r from-green-900/20 to-transparent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Work Section -->
+    <section id="work" class="py-20 bg-gray-50 curved-divider abstract-pattern">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-black text-gray-900 mb-6">
+                        OUR <span class="text-secondary">WORK</span>
+                    </h2>
+                    <div class="w-24 h-1 bg-secondary mx-auto mb-8"></div>
+                    <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                        Explore our portfolio of successful projects across various industries and see the quality craftsmanship
+                        that sets us apart.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="group relative overflow-hidden rounded-lg shadow-lg">
+                        <img
+                            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/completed-commercial-office-building-interior-jGiRsCcbnh7r10CjkKQQkC0WXKEnBa.jpg"
+                            alt="Commercial Drywall Project"
+                            class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div class="absolute bottom-4 left-4 right-4">
+                                <h3 class="text-white font-bold text-lg mb-2">Commercial Drywall Project</h3>
+                                <p class="text-white/90 text-sm">Professional office space renovation</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="group relative overflow-hidden rounded-lg shadow-lg">
+                        <img
+                            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/modern-residential-home-drywall-completion-F0HfswGabQNv1mPSnJsmExHgf3HXIr.jpg"
+                            alt="Metal Framing Project"
+                            class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div class="absolute bottom-4 left-4 right-4">
+                                <h3 class="text-white font-bold text-lg mb-2">Metal Framing Project</h3>
+                                <p class="text-white/90 text-sm">Structural framework installation</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="group relative overflow-hidden rounded-lg shadow-lg">
+                        <img
+                            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/drywall-installation-tools-and-materials-3oE7LUsjlSI5wrsUqNW72qdKW6bMzy.jpg"
+                            alt="Soundproofing Project"
+                            class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div class="absolute bottom-4 left-4 right-4">
+                                <h3 class="text-white font-bold text-lg mb-2">Soundproofing Project</h3>
+                                <p class="text-white/90 text-sm">Acoustic treatment installation</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="group relative overflow-hidden rounded-lg shadow-lg">
+                        <img
+                            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/soundproofing-installation-in-recording-studio-H9JzwU6YuGCa4gAjr6g4gOOM0mnpGe.jpg"
+                            alt="Hardware Installation Project"
+                            class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div class="absolute bottom-4 left-4 right-4">
+                                <h3 class="text-white font-bold text-lg mb-2">Hardware Installation</h3>
+                                <p class="text-white/90 text-sm">Door and window installation</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="group relative overflow-hidden rounded-lg shadow-lg">
+                        <img
+                            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/acoustical-ceiling-installation-in-office-space-0sN24u5IpYsvFrdQByxuKQrVfBpWMd.jpg"
+                            alt="Acoustical Ceiling Project"
+                            class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div class="absolute bottom-4 left-4 right-4">
+                                <h3 class="text-white font-bold text-lg mb-2">Acoustical Ceiling</h3>
+                                <p class="text-white/90 text-sm">Commercial ceiling system</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="group relative overflow-hidden rounded-lg shadow-lg">
+                        <img
+                            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/acoustical-ceiling-installation-in-office-space-0sN24u5IpYsvFrdQByxuKQrVfBpWMd.jpg"
+                            alt="Insulation Project"
+                            class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div class="absolute bottom-4 left-4 right-4">
+                                <h3 class="text-white font-bold text-lg mb-2">Insulation Project</h3>
+                                <p class="text-white/90 text-sm">Thermal insulation installation</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-12">
+                    <button class="btn-primary text-lg px-8 py-4">
+                        View All Projects
+                        <svg class="icon w-5 h-5" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-black text-gray-900 mb-6">
+                        GET IN <span class="text-secondary">TOUCH</span>
+                    </h2>
+                    <div class="w-24 h-1 bg-secondary mx-auto mb-8"></div>
+                    <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                        Ready to start your next construction project? Contact us today for a free consultation and quote.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-12">
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-8">Contact Information</h3>
+
+                        <div class="space-y-6">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <svg class="icon w-6 h-6 text-primary" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Phone</h4>
+                                    <p class="text-gray-600">745 887 5477</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                    <svg class="icon w-6 h-6 text-secondary" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Email</h4>
+                                    <p class="text-gray-600">info@sdfconstruction.com</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <svg class="icon w-6 h-6 text-primary" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Location</h4>
+                                    <p class="text-gray-600">Serving the Greater Metropolitan Area</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                    <svg class="icon w-6 h-6 text-secondary" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12,6 12,12 16,14"></polyline></svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Hours</h4>
+                                    <p class="text-gray-600">Mon - Fri: 7:00 AM - 6:00 PM</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-xl">
+                        <div class="p-8">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-6">Request a Quote</h3>
+                            <form class="space-y-6">
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-900 mb-2">First Name</label>
+                                        <input type="text" class="form-input" placeholder="John" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-900 mb-2">Last Name</label>
+                                        <input type="text" class="form-input" placeholder="Doe" />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-900 mb-2">Email</label>
+                                    <input type="email" class="form-input" placeholder="john@example.com" />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-900 mb-2">Phone</label>
+                                    <input type="tel" class="form-input" placeholder="(555) 123-4567" />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-900 mb-2">Service Needed</label>
+                                    <select class="form-input">
+                                        <option>Select a service</option>
+                                        <option>Drywall & Spackle</option>
+                                        <option>Metal Stud Framing</option>
+                                        <option>Soundproofing</option>
+                                        <option>Hardware Installation</option>
+                                        <option>Acoustical Ceilings</option>
+                                        <option>Insulation</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-900 mb-2">Project Details</label>
+                                    <textarea rows="4" class="form-input" placeholder="Tell us about your project..."></textarea>
+                                </div>
+
+                                <button type="submit" class="btn-primary w-full text-lg">
+                                    Send Request
+                                    <svg class="icon w-5 h-5" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"></path></svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-primary text-white py-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="grid md:grid-cols-4 gap-8">
+                    <div>
+                        <div class="flex items-center space-x-2 mb-6">
+                            <div class="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
+                                <img src="img/Logo1.png" alt="">
+                            </div>
+                            <span class="text-xl font-bold">SDF Construction</span>
+                        </div>
+                        <p class="text-white/80 leading-relaxed">
+                            Transforming spaces with professional construction services. Quality, precision, and excellence in
+                            every project.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-lg mb-4">Services</h4>
+                        <ul class="space-y-2 text-white/80">
+                            <li>Drywall & Spackle</li>
+                            <li>Metal Stud Framing</li>
+                            <li>Soundproofing</li>
+                            <li>Hardware Installation</li>
+                            <li>Acoustical Ceilings</li>
+                            <li>Insulation</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-lg mb-4">Industries</h4>
+                        <ul class="space-y-2 text-white/80">
+                            <li>Commercial</li>
+                            <li>Residential</li>
+                            <li>Industrial</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-lg mb-4">Contact</h4>
+                        <div class="space-y-2 text-white/80">
+                            <p>745 887 5477</p>
+                            <p>info@sdfconstruction.com</p>
+                            <p>Greater Metropolitan Area</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-white/20 mt-8 pt-8 text-center">
+                    <p class="text-white/60">
+                        © 2025 SDF Construction. All rights reserved. | Developed by Zakir Hossain.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
